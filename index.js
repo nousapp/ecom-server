@@ -13,5 +13,5 @@ app.use(router);
 // app.use(errorHandler);
 
 app.listen(process.env.PORT || 5000, () => {
-  console.log('Snips server running on port 5000');
+  console.log('Care Server running on port 5000');
 });

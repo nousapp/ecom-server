@@ -1,5 +1,4 @@
 const express = require('express');
-const careServer = require('../models/careServer.model');
 const {
   getAllResidents,
 } = require('../controllers/careServer.controller');
