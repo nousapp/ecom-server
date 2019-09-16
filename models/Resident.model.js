@@ -1,7 +1,9 @@
 require('dotenv').config();
 const format = require('pg-format');
 const ErrorWithHttpStatus = require('../utils/ErrorWithHttpStatus');
-const db = require('../db/index');
+// const db = require('../db/index')
+const sql = require('mssql');
+
 
 /**
  * @typedef {Object} Resident
@@ -36,7 +38,8 @@ exports.select = async () => {
     //   ...Object.keys(query)
     // );
     // const result = await db.query(formattedSelect, Object.values(query));
-    const result = await db.query(`SELECT * FROM ${process.env.RESIDENT_DB}`)
+    await sql.connect(`${process.env.DATABASE_URL}`)
+    const result = await sql.query(`SELECT * FROM ${process.env.RESIDENT_DB}`)
     return result.rows;
   } catch (err) {
     console.log(err);
