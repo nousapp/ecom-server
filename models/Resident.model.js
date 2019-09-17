@@ -2,7 +2,7 @@ require('dotenv').config();
 const format = require('pg-format');
 const ErrorWithHttpStatus = require('../utils/ErrorWithHttpStatus');
 // const db = require('../db/index')
-const sql = require('mssql');
+const db = require('mssql');
 
 
 /**
@@ -38,9 +38,10 @@ exports.select = async () => {
     //   ...Object.keys(query)
     // );
     // const result = await db.query(formattedSelect, Object.values(query));
-    await sql.connect(`${process.env.DATABASE_URL}`)
-    const result = await sql.query(`SELECT * FROM ${process.env.RESIDENT_DB}`)
-    return result.rows;
+    await db.connect(`${process.env.DATABASE_URL}`);
+    const result = await db.query(`SELECT * FROM ${process.env.RESIDENT_DB}`);
+    db.close();
+    return result.recordset;
   } catch (err) {
     console.log(err);
     if (err instanceof ErrorWithHttpStatus) throw err;
