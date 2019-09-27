@@ -26,20 +26,25 @@ const db = require('mssql');
  */
 // // CODE FOR QUERIES
 // exports.select = async (query = {}) => {
-exports.select = async () => {
+exports.select = async ( query = {} ) => {
   try {
-    // // CODE FOR QUERIES
-    // const clauses = Object.keys(query)
-    //   .map((key,i) => `%I = $${i + 1}`)
-    //   .join(' AND ');
-    // console.log(clauses);
-    // const formattedSelect = format(
-    //   `SELECT * FROM snippet ${clauses.length ? `WHERE ${clauses}` : ''}`,
-    //   ...Object.keys(query)
-    // );
-    // const result = await db.query(formattedSelect, Object.values(query));
     await db.connect(`${process.env.DATABASE_URL}`);
-    const result = await db.query(`SELECT * FROM ${process.env.RESIDENT_DB}`);
+    // CODE FOR QUERIES
+    const clauses = Object.keys(query)
+      .map((key,i) => `%I = $${i + 1}`)
+      .join(' AND ');
+    console.log(clauses);
+  
+    const formattedSelect = format(
+      `SELECT * FROM ${process.env.RESIDENT_DB} ${clauses.length ? `WHERE ${clauses}` : ''}`,
+      ...Object.keys(query)
+    );
+    console.log(formattedSelect);
+    console.log(...Object.values(query))
+    const result = await db.query(formattedSelect, Object.values(query));
+    // // CODE WITHOUT QUERIES
+    // const result = await db.query(`SELECT * FROM ${process.env.RESIDENT_DB}`);
+
     db.close();
     return result.recordset;
   } catch (err) {
