@@ -1,6 +1,6 @@
 const Resident = require('../models/Resident.model');
 
-
+// Create
 exports.createResident = async (req, res, next) => {
   try {
     const newResident = await Resident.insert(req.body);
@@ -10,6 +10,7 @@ exports.createResident = async (req, res, next) => {
   }
 };
 
+// Read
 exports.getAllResidents = async ({ query }, res, next) => {
   try {
     // 1.get data from Residents model
@@ -21,6 +22,7 @@ exports.getAllResidents = async ({ query }, res, next) => {
   }
 };
 
+// Delete
 exports.deleteResidentById = async (req, res, next) => {
   try {
     const { id } = req.params;
