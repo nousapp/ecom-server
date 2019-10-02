@@ -20,3 +20,13 @@ exports.getAllResidents = async ({ query }, res, next) => {
     next(err);
   }
 };
+
+exports.deleteResidentById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const residents = await Resident.delete(id);
+    res.send(residents);
+  } catch (err) {
+    next(err);
+  }
+};
