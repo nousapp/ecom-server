@@ -101,3 +101,30 @@ exports.select = async ( query = {} ) => {
 };
 
 
+/**
+ *  Deletes a Resident
+ * @param {string} id - id of the Resident to delete
+ * @returns {Promise<void>}
+ */
+// TODO: Add error handler
+exports.delete = async id => {
+  try {
+    const pool = await db.connect(`${process.env.DATABASE_URL}`);
+
+    // Get created Resident
+    let result = await pool.request()
+      .input('id', db.NVarChar(100), id)
+      .query( `SELECT * FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
+
+    console.log(result);
+    
+    // if (result.rowCount === 0) {
+    //   throw new ErrorWithHttpStatus('ID Does not exist', 400);
+    // }
+    // const result = await db.query(`DELETE FROM ${process.env.RESIDENT_DB} WHERE _id = @1`);
+    return result;
+  } catch (err) {
+    if (err instanceof ErrorWithHttpStatus) throw err;
+    else throw new ErrorWithHttpStatus('Database Error', 500);
+  }
+};
