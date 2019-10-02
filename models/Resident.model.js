@@ -31,7 +31,9 @@ exports.insert = async ({ FirstName, MiddleName, LastName, SortName, Room, Resid
     }
     const pool = await db.connect(`${process.env.DATABASE_URL}`);
     let idInput = shortid.generate();
-    let dateInput = '2018-11-27 20:27:27.127'; 
+    let dateRequest = await pool.request().query('SELECT getdate();'); 
+    // Destructure date
+    let dateInput =  Object.values(dateRequest.recordset[0])[0];
 
     // Create Resident
     await pool.request()
