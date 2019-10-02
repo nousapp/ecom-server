@@ -1,5 +1,15 @@
 const Resident = require('../models/Resident.model');
 
+
+exports.createResident = async (req, res, next) => {
+  try {
+    const newResident = await Resident.insert(req.body);
+    res.status(201).send(newResident);
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getAllResidents = async ({ query }, res, next) => {
   try {
     // 1.get data from Residents model
