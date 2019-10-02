@@ -17,6 +17,46 @@ const db = require('mssql');
  */ 
 
 
+/* Create */
+/**
+ * Inserts a new resident into the db
+ * @param {Resident} newResident - the data to create the Resident with
+ * @returns {Promise<Resident>} the created Resident
+ */
+exports.insert = async ({ FirstName, MiddleName, SortName, Room, ResidentId }) => {
+  try {
+    if(!FirstName || !MiddleName || !SortName || !Room || !ResidentId){
+      throw new ErrorWithHttpStatus('Missing Properties', 400);
+    }
+    const result = await db.query(`INSERT INTO ${} (_id, _createdAt, _updatedAt, FirstName, MiddleName, SortName, Room, ResidentId) VALUES ($1, $2, $3, $4, $5)`, [code, title, description, author, language]);
+    return result.rows;
+    // if (!author || !code || !title || !description || !language)
+    //   throw new ErrorWithHttpStatus('Missing Properties', 400);
+    // // read snippets.json
+    // const snippets = await readJsonFromDb('snippets');
+    // // grab data from newSnippet (validate)
+    // // make newSnippet a proper object
+    // // generate default data (id, comments, favorites)
+    // // push that object into snippets
+    // snippets.push({
+    //   id: shortid.generate(),
+    //   author,
+    //   code,
+    //   title,
+    //   description,
+    //   language,
+    //   comments: [],
+    //   favorites: 0,
+    // });
+    // // write back to the file
+    // await writeJsonToDb('snippets', snippets);
+    // return snippets[snippets.length - 1];
+  } catch (err) {
+    if (err instanceof ErrorWithHttpStatus) throw err;
+    else throw new ErrorWithHttpStatus('Database Error', 500);
+  }
+};
+
 /* Read */
 /**
  * Selects snippets from db.
