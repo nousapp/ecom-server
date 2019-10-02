@@ -1,6 +1,7 @@
 const express = require('express');
 const {
   getAllResidents,
+  createResident,
 } = require('../controllers/careServer.controller');
 
 const router = express.Router();
@@ -14,5 +15,6 @@ router.get('/', (req, res, next) => {
 /* Care Server Routes*/
 // GET /api/residents
 router.get('/api/residents', getAllResidents);
+router.post('/api/residents', createResident);
 
 module.exports = router;
