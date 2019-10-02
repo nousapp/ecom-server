@@ -1,4 +1,5 @@
 require('dotenv').config();
+const shortid = require('shortid');
 const format = require('pg-format');
 const ErrorWithHttpStatus = require('../utils/ErrorWithHttpStatus');
 // const db = require('../db/index')
@@ -23,34 +24,26 @@ const db = require('mssql');
  * @param {Resident} newResident - the data to create the Resident with
  * @returns {Promise<Resident>} the created Resident
  */
-exports.insert = async ({ FirstName, MiddleName, SortName, Room, ResidentId }) => {
+exports.insert = async ({ FirstName, MiddleName, LastName, SortName, Room, ResidentId }) => {
   try {
-    if(!FirstName || !MiddleName || !SortName || !Room || !ResidentId){
+    if(!FirstName || !MiddleName || !LastName || !SortName || !Room || !ResidentId){
       throw new ErrorWithHttpStatus('Missing Properties', 400);
     }
-    const result = await db.query(`INSERT INTO ${} (_id, _createdAt, _updatedAt, FirstName, MiddleName, SortName, Room, ResidentId) VALUES ($1, $2, $3, $4, $5)`, [code, title, description, author, language]);
-    return result.rows;
-    // if (!author || !code || !title || !description || !language)
-    //   throw new ErrorWithHttpStatus('Missing Properties', 400);
-    // // read snippets.json
-    // const snippets = await readJsonFromDb('snippets');
-    // // grab data from newSnippet (validate)
-    // // make newSnippet a proper object
-    // // generate default data (id, comments, favorites)
-    // // push that object into snippets
-    // snippets.push({
-    //   id: shortid.generate(),
-    //   author,
-    //   code,
-    //   title,
-    //   description,
-    //   language,
-    //   comments: [],
-    //   favorites: 0,
-    // });
-    // // write back to the file
-    // await writeJsonToDb('snippets', snippets);
-    // return snippets[snippets.length - 1];
+    let idInput = shortid.generate();
+    let dateInput = '2018-11-27 20:27:27.127';
+
+
+    const result = await db.request()
+      .input('id', db.NVarChar(100), idInput)
+      .input('createTime', db.DateTime, dateInput)
+      .input('lastName', db.NVarChar(100), LastName)
+      .input('firstName', db.NVarChar(100), FirstName)
+      .input('middleName', db.NVarChar(100), MiddleName)
+      .input('sortName', db.NVarChar(100), SortName)
+      .input('room', db.NVarChar(10), Room)
+      .input('resId', db.NVarChar(100), ResidentId)
+      .query(`INSERT INTO ${process.env.DATABASE_URL} (_id, _createdAt, _updatedAt, LastName, FirstName, MiddleName, SortName, Room, ResidentId) VALUES (@id, @createTime, @createTime, @lastName, @firstName, @middleName, @sortName, @room, @resId)`);
+    return result;
   } catch (err) {
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
