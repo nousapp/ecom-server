@@ -29,22 +29,31 @@ exports.insert = async ({ FirstName, MiddleName, LastName, SortName, Room, Resid
     if(!FirstName || !MiddleName || !LastName || !SortName || !Room || !ResidentId){
       throw new ErrorWithHttpStatus('Missing Properties', 400);
     }
+    const pool = await db.connect(`${process.env.DATABASE_URL}`);
     let idInput = shortid.generate();
-    let dateInput = '2018-11-27 20:27:27.127';
+    let dateInput = '2018-11-27 20:27:27.127'; 
 
-
-    const result = await db.request()
+    // Create Resident
+    await pool.request()
       .input('id', db.NVarChar(100), idInput)
-      .input('createTime', db.DateTime, dateInput)
+      .input('createTime', dateInput)
       .input('lastName', db.NVarChar(100), LastName)
       .input('firstName', db.NVarChar(100), FirstName)
       .input('middleName', db.NVarChar(100), MiddleName)
       .input('sortName', db.NVarChar(100), SortName)
       .input('room', db.NVarChar(10), Room)
       .input('resId', db.NVarChar(100), ResidentId)
-      .query(`INSERT INTO ${process.env.DATABASE_URL} (_id, _createdAt, _updatedAt, LastName, FirstName, MiddleName, SortName, Room, ResidentId) VALUES (@id, @createTime, @createTime, @lastName, @firstName, @middleName, @sortName, @room, @resId)`);
-    return result;
+      .query(`INSERT INTO ${process.env.RESIDENT_DB} (_id, _createdAt, _updatedAt, LastName, FirstName, MiddleName, SortName, Room, ResidentId) VALUES (@id, @createTime, @createTime, @lastName, @firstName, @middleName, @sortName, @room, @resId);`);
+    
+    // Get created Resident
+    let result = await pool.request()
+      .input('id', db.NVarChar(100), idInput)
+      .query( `SELECT * FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
+    
+    db.close();
+    return result.recordset;
   } catch (err) {
+    console.log(err);
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
