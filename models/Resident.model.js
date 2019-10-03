@@ -115,14 +115,15 @@ exports.delete = async id => {
     let result = await pool.request()
       .input('id', db.NVarChar(100), id)
       .query( `SELECT * FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
-
-    console.log(result);
     
-    // if (result.rowCount === 0) {
-    //   throw new ErrorWithHttpStatus('ID Does not exist', 400);
-    // }
-    // const result = await db.query(`DELETE FROM ${process.env.RESIDENT_DB} WHERE _id = @1`);
-    return result;
+    if (result.recordset.length == 0) {
+      throw new ErrorWithHttpStatus('ID Does not exist', 400);
+    }
+    await pool.request()
+      .input('id', db.NVarChar(100), id)
+      .query(`DELETE FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
+    db.close(); 
+    return result.recordset[0];
   } catch (err) {
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
