@@ -109,29 +109,39 @@ exports.select = async ( query = {} ) => {
  */
 exports.update = async (id, newData) => {
   try {
-    if (!id || !newData) {
-      throw new ErrorWithHttpStatus('ID and Data Required', 400);
-    }
     const { code, title, description, author, language } = newData;
+
+    const pool = await db.connect(`${process.env.DATABASE_URL}`);
+    let reqPool = await pool.request() 
+    var keys = Object.keys(newData);
+    var values = Object.values(newData);
     // Handle Data coming in
+    if (keys.length == 0) {
+      throw new ErrorWithHttpStatus('Data Required to Update', 400);
+    }
+    var params = [];
+    // Handle inputs from body
+    for(var i = 1; i <= keys.length ; i++) {
+      params.push(keys[i-1] + ` = @` + (i));
+      reqPool.input(i, values[i-1]);
+    }
+    // Handle ID input
+    reqPool.input('id', db.NVarChar(100), id);
 
+    var queryText = `UPDATE ${process.env.RESIDENT_DB} SET ` + params.join(', ') + ` WHERE _id = @id;`;
+    
+    await reqPool.query(queryText);
 
-    // const pool = await db.connect(`${process.env.DATABASE_URL}`);
-    // var keys = Object.keys(newData);
-    // var values = Object.values(newData);
-    // var params = [];
-    // var queries = [];
-    // for(var i = 1; i <= keys.length ; i++) {
-    //   params.push(keys[i-1] + ' = @' + (i));
-    //   queries.push(`${values[i-1]}`);
-    // }
-    // var queryText = `UPDATE ${process.env.RESIDENT_DB} SET ` + params.join(', ') + ' WHERE id = ' + id;
-    // console.log(queryText);
-    // console.log(queries);
-    // const result = await pool.query(queryText, queries)
-    // return result.rows;
-    return newData;
-  } catch {
+    // Get updated Resident
+    let result = await pool.request()
+      .input('id', db.NVarChar(100), id)
+      .query( `SELECT * FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
+
+    db.close();
+    return result.recordset;
+  } catch(err) {
+    db.close()
+    console.log(err);
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
