@@ -112,6 +112,12 @@ exports.update = async (id, newData) => {
     const { code, title, description, author, language } = newData;
 
     const pool = await db.connect(`${process.env.DATABASE_URL}`);
+    // Get Time
+    let dateRequest = await pool.request().query('SELECT getdate();'); 
+    // Destructure date
+    let dateInput =  Object.values(dateRequest.recordset[0])[0];
+
+    // Update Data
     let reqPool = await pool.request() 
     var keys = Object.keys(newData);
     var values = Object.values(newData);
@@ -120,6 +126,9 @@ exports.update = async (id, newData) => {
       throw new ErrorWithHttpStatus('Data Required to Update', 400);
     }
     var params = [];
+    // Handle Update Time Input
+    reqPool.input('updateTime', dateInput);
+    params.push(`_updatedAt = @updateTime`);
     // Handle inputs from body
     for(var i = 1; i <= keys.length ; i++) {
       params.push(keys[i-1] + ` = @` + (i));
