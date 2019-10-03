@@ -1,7 +1,8 @@
 const express = require('express');
 const {
-  getAllResidents,
   createResident,
+  getAllResidents,
+  updateResident,
   deleteResidentById,
 } = require('../controllers/careServer.controller');
 
@@ -15,8 +16,9 @@ router.get('/', (req, res, next) => {
 
 /* Care Server Routes*/
 // GET /api/residents
-router.get('/api/residents', getAllResidents);
 router.post('/api/residents', createResident);
+router.get('/api/residents', getAllResidents);
+router.patch('/api/residents/:id', updateResident);
 router.delete('/api/residents/:id', deleteResidentById);
 
 module.exports = router;
