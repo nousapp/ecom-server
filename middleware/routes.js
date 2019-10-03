@@ -18,7 +18,7 @@ router.get('/', (req, res, next) => {
 // GET /api/residents
 router.post('/api/residents', createResident);
 router.get('/api/residents', getAllResidents);
-router.patch('/api/snippets/:id', updateResident);
+router.patch('/api/residents/:id', updateResident);
 router.delete('/api/residents/:id', deleteResidentById);
 
 module.exports = router;
