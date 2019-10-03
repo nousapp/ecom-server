@@ -22,6 +22,17 @@ exports.getAllResidents = async ({ query }, res, next) => {
   }
 };
 
+// Update
+exports.updateResident = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const residents = await Resident.update(id, req.body);
+    res.send(residents);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Delete
 exports.deleteResidentById = async (req, res, next) => {
   try {
