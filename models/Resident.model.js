@@ -55,7 +55,7 @@ exports.insert = async ({ FirstName, MiddleName, LastName, SortName, Room, Resid
     db.close();
     return result.recordset;
   } catch (err) {
-    console.log(err);
+    db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
@@ -94,10 +94,39 @@ exports.select = async ( query = {} ) => {
     db.close();
     return result.recordset;
   } catch (err) {
-    console.log(err);
+    db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
 };
 
 
+/**
+ *  Deletes a Resident
+ * @param {string} id - id of the Resident to delete
+ * @returns {Promise<void>}
+ */
+// TODO: Add error handler
+exports.delete = async id => {
+  try {
+    const pool = await db.connect(`${process.env.DATABASE_URL}`);
+
+    // Get created Resident
+    let result = await pool.request()
+      .input('id', db.NVarChar(100), id)
+      .query( `SELECT * FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
+    
+    if (result.recordset.length == 0) {
+      throw new ErrorWithHttpStatus('ID Does not exist', 400);
+    }
+    await pool.request()
+      .input('id', db.NVarChar(100), id)
+      .query(`DELETE FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
+    db.close(); 
+    return result.recordset[0];
+  } catch (err) {
+    db.close();
+    if (err instanceof ErrorWithHttpStatus) throw err;
+    else throw new ErrorWithHttpStatus('Database Error', 500);
+  }
+};
