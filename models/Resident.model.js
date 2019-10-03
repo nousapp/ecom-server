@@ -55,7 +55,7 @@ exports.insert = async ({ FirstName, MiddleName, LastName, SortName, Room, Resid
     db.close();
     return result.recordset;
   } catch (err) {
-    console.log(err);
+    db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
@@ -94,7 +94,7 @@ exports.select = async ( query = {} ) => {
     db.close();
     return result.recordset;
   } catch (err) {
-    console.log(err);
+    db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
@@ -125,6 +125,7 @@ exports.delete = async id => {
     db.close(); 
     return result.recordset[0];
   } catch (err) {
+    db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
