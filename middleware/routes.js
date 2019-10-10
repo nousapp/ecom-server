@@ -1,7 +1,7 @@
 const express = require('express');
 const {
   getAllResidents,
-} = require('../controllers/careServer.controller');
+} = require('../controllers/Resident.controller');
 
 const router = express.Router();
 
