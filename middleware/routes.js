@@ -8,13 +8,14 @@ const {
 
 const router = express.Router();
 
+/* Care Server Routes*/
+// Default routes
 router.get('/', (req, res, next) => {
   console.log(`We're in the router`);
   res.send('Welcome to Care Solutions Server');
   next();
 });
 
-/* Care Server Routes*/
 // GET /api/residents
 router.post('/api/residents', createResident);
 router.get('/api/residents', getAllResidents);
