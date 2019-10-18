@@ -11,7 +11,7 @@ exports.createResident = async (req, res, next) => {
 };
 
 // Read
-exports.getAllResidents = async ({ query }, res, next) => {
+exports.getResidents = async ({ query }, res, next) => {
   try {
     // 1.get data from Residents model
     const residents = await Resident.select(query);
