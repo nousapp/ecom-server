@@ -24,7 +24,32 @@ const db = require('mssql');
  */
 exports.insert = async ({ServiceCode, ServicedBy, TransDate, ResidentId }) => {
   try {
-    return "INSERT Transaction";
+    if(!ServiceCode || !ServicedBy || !TransDate || !ResidentId){
+      throw new ErrorWithHttpStatus('Missing Properties', 400);
+    }
+    const pool = await db.connect(`${process.env.DATABASE_URL}`);
+    let idInput = shortid.generate();
+    let dateRequest = await pool.request().query('SELECT getdate();'); 
+    // Destructure date
+    let dateInput =  Object.values(dateRequest.recordset[0])[0];
+
+    // Create Resident
+    await pool.request()
+      .input('id', db.NVarChar(100), idInput)
+      .input('createTime', dateInput)
+      .input('transDate', db.NVarChar(100), TransDate)
+      .input('serviceCode', db.NVarChar(100), ServiceCode)
+      .input('servicedBy', db.NVarChar(100), ServicedBy)
+      .input('resId', db.NVarChar(100), ResidentId)
+      .query(`INSERT INTO ${process.env.TRANSACTION_DB} (_id, _createdAt, _updatedAt, ServiceCode, ServicedBy, TransDate,  ResidentId) VALUES (@id, @createTime, @createTime, @serviceCode, @servicedBy, @transDate, @resId);`);
+    
+    // Get created Resident
+    let result = await pool.request()
+      .input('id', db.NVarChar(100), idInput)
+      .query( `SELECT * FROM ${process.env.TRANSACTION_DB} WHERE _id = @id`);
+    
+    db.close();
+    return result.recordset;
   } catch (err) {
     db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
