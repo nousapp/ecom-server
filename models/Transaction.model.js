@@ -24,7 +24,7 @@ const db = require('mssql');
  */
 exports.insert = async ({ServiceCode, ServicedBy, TransDate, ResidentId }) => {
   try {
-    console.log("INSERT Transaction");
+    return "INSERT Transaction";
   } catch (err) {
     db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
@@ -57,7 +57,7 @@ exports.select = async ( query = {} ) => {
       .join(' AND ');
     // Handle Format String
     const formattedSelect = format(
-      `SELECT * FROM ${process.env.Transaction_DB} ${clauses.length ? `WHERE ${clauses}` : ''}`,
+      `SELECT * FROM ${process.env.TRANSACTION_DB} ${clauses.length ? `WHERE ${clauses}` : ''}`,
       ...Object.keys(query)  
     );
     // Pass in Query
@@ -80,7 +80,7 @@ exports.select = async ( query = {} ) => {
  */
 exports.update = async (id, newData) => {
   try {
-    console.log('UPDATE Transaction');
+    return 'UPDATE Transaction';
   } catch(err) {
     db.close()
     console.log(err);
@@ -98,7 +98,7 @@ exports.update = async (id, newData) => {
 // TODO: Add error handler
 exports.delete = async id => {
   try {
-    console.log('DELETE Transaction');
+    return 'DELETE Transaction';
   } catch (err) {
     db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
