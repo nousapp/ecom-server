@@ -18,7 +18,7 @@ const db = require('mssql');
 
 /* Create */
 /**
- * Inserts a new resident into the db
+ * Inserts a new Transaction into the db
  * @param {Transaction} newTransaction - the data to create the Transaction with
  * @returns {Promise<Transaction>} the created Transaction
  */
@@ -33,7 +33,7 @@ exports.insert = async ({ServiceCode, ServicedBy, TransDate, ResidentId }) => {
     // Destructure date
     let dateInput =  Object.values(dateRequest.recordset[0])[0];
 
-    // Create Resident
+    // Create Transaction
     await pool.request()
       .input('id', db.NVarChar(100), idInput)
       .input('createTime', dateInput)
@@ -43,7 +43,7 @@ exports.insert = async ({ServiceCode, ServicedBy, TransDate, ResidentId }) => {
       .input('resId', db.NVarChar(100), ResidentId)
       .query(`INSERT INTO ${process.env.TRANSACTION_DB} (_id, _createdAt, _updatedAt, ServiceCode, ServicedBy, TransDate,  ResidentId) VALUES (@id, @createTime, @createTime, @serviceCode, @servicedBy, @transDate, @resId);`);
     
-    // Get created Resident
+    // Get created Transaction
     let result = await pool.request()
       .input('id', db.NVarChar(100), idInput)
       .query( `SELECT * FROM ${process.env.TRANSACTION_DB} WHERE _id = @id`);
@@ -105,7 +105,43 @@ exports.select = async ( query = {} ) => {
  */
 exports.update = async (id, newData) => {
   try {
-    return 'UPDATE Transaction';
+    const pool = await db.connect(`${process.env.DATABASE_URL}`);
+    // Get Time
+    let dateRequest = await pool.request().query('SELECT getdate();'); 
+    // Destructure date
+    let dateInput =  Object.values(dateRequest.recordset[0])[0];
+
+    // Update Data
+    let reqPool = await pool.request() 
+    var keys = Object.keys(newData);
+    var values = Object.values(newData);
+    // Handle Data coming in
+    if (keys.length == 0) {
+      throw new ErrorWithHttpStatus('Data Required to Update', 400);
+    }
+    var params = [];
+    // Handle Update Time Input
+    reqPool.input('updateTime', dateInput);
+    params.push(`_updatedAt = @updateTime`);
+    // Handle inputs from body
+    for(var i = 1; i <= keys.length ; i++) {
+      params.push(keys[i-1] + ` = @` + (i));
+      reqPool.input(i, values[i-1]);
+    }
+    // Handle ID input
+    reqPool.input('id', db.NVarChar(100), id);
+
+    var queryText = `UPDATE ${process.env.TRANSACTION_DB} SET ` + params.join(', ') + ` WHERE _id = @id;`;
+    
+    await reqPool.query(queryText);
+
+    // Get updated Transaction
+    let result = await pool.request()
+      .input('id', db.NVarChar(100), id)
+      .query( `SELECT * FROM ${process.env.TRANSACTION_DB} WHERE _id = @id`);
+
+    db.close();
+    return result.recordset;
   } catch(err) {
     db.close()
     console.log(err);
@@ -125,7 +161,7 @@ exports.delete = async id => {
   try {
     const pool = await db.connect(`${process.env.DATABASE_URL}`);
 
-    // Get created Resident
+    // Get created Transaction
     let result = await pool.request()
       .input('id', db.NVarChar(100), id)
       .query( `SELECT * FROM ${process.env.TRANSACTION_DB} WHERE _id = @id`);

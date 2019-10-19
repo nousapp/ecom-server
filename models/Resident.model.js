@@ -109,8 +109,6 @@ exports.select = async ( query = {} ) => {
  */
 exports.update = async (id, newData) => {
   try {
-    const { code, title, description, author, language } = newData;
-
     const pool = await db.connect(`${process.env.DATABASE_URL}`);
     // Get Time
     let dateRequest = await pool.request().query('SELECT getdate();'); 
