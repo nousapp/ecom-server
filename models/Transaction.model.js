@@ -24,6 +24,7 @@ const db = require('mssql');
  */
 exports.insert = async ({ServiceCode, ServicedBy, TransDate, ResidentId }) => {
   try {
+    // Checks if all inputs are in request
     if(!ServiceCode || !ServicedBy || !TransDate || !ResidentId){
       throw new ErrorWithHttpStatus('Missing Properties', 400);
     }
