@@ -10,9 +10,7 @@ const db = require('mssql');
  * @typedef {Object} Service
  * @property {string} acl
  * @property {string} ServiceCode
- * @property {string} ServicedBy
- * @property {string} TransDate
- * @property {string} ResidentId
+ * @property {string} ServiceName
  */ 
 
 
@@ -22,9 +20,33 @@ const db = require('mssql');
  * @param {Service} newService - the data to create the Service with
  * @returns {Promise<Service>} the created Service
  */
-exports.insert = async ({ServiceCode, ServicedBy, TransDate, ResidentId }) => {
+exports.insert = async ({ServiceCode, ServiceName }) => {
   try {
-    return 'INSERT Service!';
+    // Checks if all inputs are in request
+    if(!ServiceCode || !ServiceName){
+      throw new ErrorWithHttpStatus('Missing Properties', 400);
+    }
+    const pool = await db.connect(`${process.env.DATABASE_URL}`);
+    let idInput = shortid.generate();
+    let dateRequest = await pool.request().query('SELECT getdate();'); 
+    // Destructure date
+    let dateInput =  Object.values(dateRequest.recordset[0])[0];
+
+    // Create Service
+    await pool.request()
+      .input('id', db.NVarChar(100), idInput)
+      .input('createTime', dateInput)
+      .input('serviceCode', db.NVarChar(100), ServiceCode)
+      .input('serviceName', db.NVarChar(100), ServiceName)
+      .query(`INSERT INTO ${process.env.SERVICE_DB} (_id, _createdAt, _updatedAt, ServiceCode, ServiceName) VALUES (@id, @createTime, @createTime, @serviceCode, @serviceName);`);
+    
+    // Get created Service
+    let result = await pool.request()
+      .input('id', db.NVarChar(100), idInput)
+      .query( `SELECT * FROM ${process.env.SERVICE_DB} WHERE _id = @id`);
+    
+    db.close();
+    return result.recordset;
   } catch (err) {
     db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
