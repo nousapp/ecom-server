@@ -156,7 +156,21 @@ exports.update = async (id, newData) => {
 // TODO: Add error handler
 exports.delete = async id => {
   try {
-    return 'DELETE Service!';
+    const pool = await db.connect(`${process.env.DATABASE_URL}`);
+
+    // Get created Service
+    let result = await pool.request()
+      .input('id', db.NVarChar(100), id)
+      .query( `SELECT * FROM ${process.env.SERVICE_DB} WHERE _id = @id`);
+    
+    if (result.recordset.length == 0) {
+      throw new ErrorWithHttpStatus('ID Does not exist', 400);
+    }
+    await pool.request()
+      .input('id', db.NVarChar(100), id)
+      .query(`DELETE FROM ${process.env.SERVICE_DB} WHERE _id = @id`);
+    db.close(); 
+    return result.recordset[0];
   } catch (err) {
     db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
