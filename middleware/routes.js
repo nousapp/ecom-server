@@ -11,6 +11,12 @@ const {
   deleteTransactionById,
   getTransactions,
 } = require('../controllers/Transaction.controller');
+const {
+  createService,
+  updateService,
+  deleteServiceById,
+  getServices,
+} = require('../controllers/Service.controller');
 
 const router = express.Router();
 
@@ -33,5 +39,11 @@ router.post('/api/transactions', createTransaction);
 router.get('/api/transactions', getTransactions);
 router.patch('/api/transactions/:id', updateTransaction);
 router.delete('/api/transactions/:id', deleteTransactionById);
+
+// GET /api/services
+router.post('/api/services', createService);
+router.get('/api/services', getServices);
+router.patch('/api/services/:id', updateService);
+router.delete('/api/services/:id', deleteServiceById);
 
 module.exports = router;
