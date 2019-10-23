@@ -102,7 +102,43 @@ exports.select = async ( query = {} ) => {
  */
 exports.update = async (id, newData) => {
   try {
-    return 'UPDATE Service!';
+    const pool = await db.connect(`${process.env.DATABASE_URL}`);
+    // Get Time
+    let dateRequest = await pool.request().query('SELECT getdate();'); 
+    // Destructure date
+    let dateInput =  Object.values(dateRequest.recordset[0])[0];
+
+    // Update Data
+    let reqPool = await pool.request() 
+    var keys = Object.keys(newData);
+    var values = Object.values(newData);
+    // Handle Data coming in
+    if (keys.length == 0) {
+      throw new ErrorWithHttpStatus('Data Required to Update', 400);
+    }
+    var params = [];
+    // Handle Update Time Input
+    reqPool.input('updateTime', dateInput);
+    params.push(`_updatedAt = @updateTime`);
+    // Handle inputs from body
+    for(var i = 1; i <= keys.length ; i++) {
+      params.push(keys[i-1] + ` = @` + (i));
+      reqPool.input(i, values[i-1]);
+    }
+    // Handle ID input
+    reqPool.input('id', db.NVarChar(100), id);
+
+    var queryText = `UPDATE ${process.env.SERVICE_DB} SET ` + params.join(', ') + ` WHERE _id = @id;`;
+    
+    await reqPool.query(queryText);
+
+    // Get updated Service
+    let result = await pool.request()
+      .input('id', db.NVarChar(100), id)
+      .query( `SELECT * FROM ${process.env.SERVICE_DB} WHERE _id = @id`);
+
+    db.close();
+    return result.recordset;
   } catch(err) {
     db.close()
     console.log(err);
