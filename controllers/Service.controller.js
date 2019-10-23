@@ -1,8 +1,10 @@
+const Service = require('../models/Service.model');
 
 // Create
 exports.createService = async (req, res, next) => {
   try {
-    res.status(201).send('CREATE SERVICE!!!!');
+    const newService = await Service.insert(req.body);
+    res.status(201).send(newService);
   } catch (err) {
     next(err);
   }
@@ -11,7 +13,10 @@ exports.createService = async (req, res, next) => {
 // Read
 exports.getServices = async ({ query }, res, next) => {
   try {
-    res.status(201).send('READ SERVICE!!!!');
+    // 1.get data from Services model
+    const services = await Service.select(query);
+    // 2. send that out
+    res.send(services);
   } catch (err) {
     next(err);
   }
@@ -20,7 +25,9 @@ exports.getServices = async ({ query }, res, next) => {
 // Update
 exports.updateService = async (req, res, next) => {
   try {
-    res.status(201).send('UPDATE SERVICE!!!!');
+    const { id } = req.params;
+    const services = await Service.update(id, req.body);
+    res.send(services);
   } catch (err) {
     next(err);
   }
@@ -29,7 +36,9 @@ exports.updateService = async (req, res, next) => {
 // Delete
 exports.deleteServiceById = async (req, res, next) => {
   try {
-    res.status(201).send('DELETE SERVICE!!!!');
+    const { id } = req.params;
+    const services = await Service.delete(id);
+    res.send(services);
   } catch (err) {
     next(err);
   }

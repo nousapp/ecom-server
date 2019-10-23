@@ -60,9 +60,9 @@ exports.insert = async ({ServiceCode, ServicedBy, TransDate, ResidentId }) => {
 
 /* Read */
 /**
- * Selects snippets from db.
+ * Selects transactions from db.
  * Can accept optional query object to filter results.
- * Otherwise returns all snippets
+ * Otherwise returns all transactions
  * @param {Object} {query}
  * @returns {Promise<Object[]>}
  */
