@@ -42,12 +42,12 @@ exports.insert = async ({ServiceCode, ServicedBy, TransDate, ResidentId }) => {
       .input('serviceCode', db.NVarChar(100), ServiceCode)
       .input('servicedBy', db.NVarChar(100), ServicedBy)
       .input('resId', db.NVarChar(100), ResidentId)
-      .query(`INSERT INTO ${process.env.TRANSACTION_DB} (_id, _createdAt, _updatedAt, ServiceCode, ServicedBy, TransDate,  ResidentId) VALUES (@id, @createTime, @createTime, @serviceCode, @servicedBy, @transDate, @resId);`);
+      .query(`INSERT INTO dbo.transactions (_id, _createdAt, _updatedAt, ServiceCode, ServicedBy, TransDate,  ResidentId) VALUES (@id, @createTime, @createTime, @serviceCode, @servicedBy, @transDate, @resId);`);
     
     // Get created Transaction
     let result = await pool.request()
       .input('id', db.NVarChar(100), idInput)
-      .query( `SELECT * FROM ${process.env.TRANSACTION_DB} WHERE _id = @id`);
+      .query( `SELECT * FROM dbo.transactions WHERE _id = @id`);
     
     db.close();
     return result.recordset;
@@ -83,7 +83,7 @@ exports.select = async ( query = {} ) => {
       .join(' AND ');
     // Handle Format String
     const formattedSelect = format(
-      `SELECT * FROM ${process.env.TRANSACTION_DB} ${clauses.length ? `WHERE ${clauses}` : ''}`,
+      `SELECT * FROM dbo.transactions ${clauses.length ? `WHERE ${clauses}` : ''}`,
       ...Object.keys(query)  
     );
     // Pass in Query
@@ -132,14 +132,14 @@ exports.update = async (id, newData) => {
     // Handle ID input
     reqPool.input('id', db.NVarChar(100), id);
 
-    var queryText = `UPDATE ${process.env.TRANSACTION_DB} SET ` + params.join(', ') + ` WHERE _id = @id;`;
+    var queryText = `UPDATE dbo.transactions SET ` + params.join(', ') + ` WHERE _id = @id;`;
     
     await reqPool.query(queryText);
 
     // Get updated Transaction
     let result = await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query( `SELECT * FROM ${process.env.TRANSACTION_DB} WHERE _id = @id`);
+      .query( `SELECT * FROM dbo.transactions WHERE _id = @id`);
 
     db.close();
     return result.recordset;
@@ -165,14 +165,14 @@ exports.delete = async id => {
     // Get created Transaction
     let result = await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query( `SELECT * FROM ${process.env.TRANSACTION_DB} WHERE _id = @id`);
+      .query( `SELECT * FROM dbo.transactions WHERE _id = @id`);
     
     if (result.recordset.length == 0) {
       throw new ErrorWithHttpStatus('ID Does not exist', 400);
     }
     await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query(`DELETE FROM ${process.env.TRANSACTION_DB} WHERE _id = @id`);
+      .query(`DELETE FROM dbo.transactions WHERE _id = @id`);
     db.close(); 
     return result.recordset[0];
   } catch (err) {
