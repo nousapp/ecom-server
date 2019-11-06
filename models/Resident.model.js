@@ -45,12 +45,12 @@ exports.insert = async ({ FirstName, MiddleName, LastName, SortName, Room, Resid
       .input('sortName', db.NVarChar(100), SortName)
       .input('room', db.NVarChar(10), Room)
       .input('resId', db.NVarChar(100), ResidentId)
-      .query(`INSERT INTO ${process.env.RESIDENT_DB} (_id, _createdAt, _updatedAt, LastName, FirstName, MiddleName, SortName, Room, ResidentId) VALUES (@id, @createTime, @createTime, @lastName, @firstName, @middleName, @sortName, @room, @resId);`);
+      .query(`INSERT INTO dbo.resident (_id, _createdAt, _updatedAt, LastName, FirstName, MiddleName, SortName, Room, ResidentId) VALUES (@id, @createTime, @createTime, @lastName, @firstName, @middleName, @sortName, @room, @resId);`);
     
     // Get created Resident
     let result = await pool.request()
       .input('id', db.NVarChar(100), idInput)
-      .query( `SELECT * FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
+      .query( `SELECT * FROM dbo.resident WHERE _id = @id`);
     
     db.close();
     return result.recordset;
@@ -86,7 +86,7 @@ exports.select = async ( query = {} ) => {
       .join(' AND ');
     // Handle Format String
     const formattedSelect = format(
-      `SELECT * FROM ${process.env.RESIDENT_DB} ${clauses.length ? `WHERE ${clauses}` : ''}`,
+      `SELECT * FROM dbo.resident ${clauses.length ? `WHERE ${clauses}` : ''}`,
       ...Object.keys(query)  
     );
     // Pass in Query
@@ -135,14 +135,14 @@ exports.update = async (id, newData) => {
     // Handle ID input
     reqPool.input('id', db.NVarChar(100), id);
 
-    var queryText = `UPDATE ${process.env.RESIDENT_DB} SET ` + params.join(', ') + ` WHERE _id = @id;`;
+    var queryText = `UPDATE dbo.resident SET ` + params.join(', ') + ` WHERE _id = @id;`;
     
     await reqPool.query(queryText);
 
     // Get updated Resident
     let result = await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query( `SELECT * FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
+      .query( `SELECT * FROM dbo.resident WHERE _id = @id`);
 
     db.close();
     return result.recordset;
@@ -168,14 +168,14 @@ exports.delete = async id => {
     // Get created Resident
     let result = await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query( `SELECT * FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
+      .query( `SELECT * FROM dbo.resident WHERE _id = @id`);
     
     if (result.recordset.length == 0) {
       throw new ErrorWithHttpStatus('ID Does not exist', 400);
     }
     await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query(`DELETE FROM ${process.env.RESIDENT_DB} WHERE _id = @id`);
+      .query(`DELETE FROM dbo.resident WHERE _id = @id`);
     db.close(); 
     return result.recordset[0];
   } catch (err) {
