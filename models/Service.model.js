@@ -38,12 +38,12 @@ exports.insert = async ({ServiceCode, ServiceName }) => {
       .input('createTime', dateInput)
       .input('serviceCode', db.NVarChar(100), ServiceCode)
       .input('serviceName', db.NVarChar(100), ServiceName)
-      .query(`INSERT INTO ${process.env.SERVICE_DB} (_id, _createdAt, _updatedAt, ServiceCode, ServiceName) VALUES (@id, @createTime, @createTime, @serviceCode, @serviceName);`);
+      .query(`INSERT INTO dbo.service (_id, _createdAt, _updatedAt, ServiceCode, ServiceName) VALUES (@id, @createTime, @createTime, @serviceCode, @serviceName);`);
     
     // Get created Service
     let result = await pool.request()
       .input('id', db.NVarChar(100), idInput)
-      .query( `SELECT * FROM ${process.env.SERVICE_DB} WHERE _id = @id`);
+      .query( `SELECT * FROM dbo.service WHERE _id = @id`);
     
     db.close();
     return result.recordset;
@@ -79,7 +79,7 @@ exports.select = async ( query = {} ) => {
       .join(' AND ');
     // Handle Format String
     const formattedSelect = format(
-      `SELECT * FROM ${process.env.SERVICE_DB} ${clauses.length ? `WHERE ${clauses}` : ''}`,
+      `SELECT * FROM dbo.service ${clauses.length ? `WHERE ${clauses}` : ''}`,
       ...Object.keys(query)  
     );
     // Pass in Query
@@ -128,14 +128,14 @@ exports.update = async (id, newData) => {
     // Handle ID input
     reqPool.input('id', db.NVarChar(100), id);
 
-    var queryText = `UPDATE ${process.env.SERVICE_DB} SET ` + params.join(', ') + ` WHERE _id = @id;`;
+    var queryText = `UPDATE dbo.service SET ` + params.join(', ') + ` WHERE _id = @id;`;
     
     await reqPool.query(queryText);
 
     // Get updated Service
     let result = await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query( `SELECT * FROM ${process.env.SERVICE_DB} WHERE _id = @id`);
+      .query( `SELECT * FROM dbo.service WHERE _id = @id`);
 
     db.close();
     return result.recordset;
@@ -161,14 +161,14 @@ exports.delete = async id => {
     // Get created Service
     let result = await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query( `SELECT * FROM ${process.env.SERVICE_DB} WHERE _id = @id`);
+      .query( `SELECT * FROM dbo.service WHERE _id = @id`);
     
     if (result.recordset.length == 0) {
       throw new ErrorWithHttpStatus('ID Does not exist', 400);
     }
     await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query(`DELETE FROM ${process.env.SERVICE_DB} WHERE _id = @id`);
+      .query(`DELETE FROM dbo.service WHERE _id = @id`);
     db.close(); 
     return result.recordset[0];
   } catch (err) {
