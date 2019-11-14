@@ -83,7 +83,7 @@ exports.select = async ( query = {} ) => {
       .join(' AND ');
     // Handle Format String
     const formattedSelect = format(
-      `SELECT * FROM dbo.transactions ${clauses.length ? `WHERE ${clauses}` : ''} ORDER BY TransDate DESC LIMIT 1500`,
+      `SELECT * FROM dbo.transactions ${clauses.length ? `WHERE ${clauses}` : ''} ORDER BY TransDate DESC`,
       ...Object.keys(query)  
     );
     // Pass in Query
