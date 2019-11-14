@@ -17,6 +17,12 @@ const {
   deleteServiceById,
   getServices,
 } = require('../controllers/Service.controller');
+const {
+  createUser,
+  updateUser,
+  deleteUserById,
+  getUsers,
+} = require('../controllers/User.controller');
 
 const router = express.Router();
 
@@ -45,5 +51,11 @@ router.post('/api/services', createService);
 router.get('/api/services', getServices);
 router.patch('/api/services/:id', updateService);
 router.delete('/api/services/:id', deleteServiceById);
+
+// GET /api/users
+router.post('/api/users', createUser);
+router.get('/api/users', getUsers);
+router.patch('/api/users/:id', updateUser);
+router.delete('/api/users/:id', deleteUserById);
 
 module.exports = router;

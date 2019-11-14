@@ -56,7 +56,7 @@ exports.insert = async ({ServiceCode, ServicedBy, TransDate, ResidentId }) => {
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
-};
+}; 
 
 /* Read */
 /**

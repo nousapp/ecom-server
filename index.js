@@ -12,5 +12,5 @@ app.use(router);
 app.use(errorHandler);
 
 app.listen(process.env.PORT || 8080, () => {
-  console.log('Care Server running on port 8080');
+  console.log(`Care Server running on port ${process.env.PORT || 8080}`);
 });
