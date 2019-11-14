@@ -54,7 +54,7 @@ exports.select = async ( query = {} ) => {
       .join(' AND ');
     // Handle Format String
     const formattedSelect = format(
-      `SELECT * FROM dbo.users ${clauses.length ? `WHERE ${clauses}` : ''}`,
+      `SELECT _id, username, LastName, FirstName, MiddleName, SortName, Role, _updatedAt FROM dbo.users ${clauses.length ? `WHERE ${clauses}` : ''}`,
       ...Object.keys(query)  
     );
     // Pass in Query
