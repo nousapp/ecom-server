@@ -5,7 +5,7 @@ const db = require('mssql');
 // Auth Helpers
 const { userExists, createUser, storeToken } = require('../db/auth');
 // UTILS
-const hashPassword = require('../utils/hashPasswords');
+const hashPassword = require('../utils/hashPassword');
 const checkPassword = require('../utils/checkPassword');
 const createToken = require('../utils/generateToken');
 const ErrorWithHttpStatus = require('../utils/ErrorWithHttpStatus');
