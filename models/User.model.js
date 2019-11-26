@@ -1,9 +1,14 @@
 require('dotenv').config();
 const shortid = require('shortid');
 const format = require('pg-format');
-const ErrorWithHttpStatus = require('../utils/ErrorWithHttpStatus');
-// const db = require('../db/index')
 const db = require('mssql');
+// Auth Helpers
+const { userExists, createUser, storeToken } = require('../db/auth');
+// UTILS
+const hashPassword = require('../utils/hashPasswords');
+const checkPassword = require('../utils/checkPassword');
+const createToken = require('../utils/generateToken');
+const ErrorWithHttpStatus = require('../utils/ErrorWithHttpStatus');
 
 
 /**
@@ -14,20 +19,58 @@ const db = require('mssql');
  */ 
 
 
-/* Create */
 /**
- * Inserts a new User into the db
- * @param {User} newUser - the data to create the User with
- * @returns {Promise<User>} the created User
+ * registerUser
+ * @description: Handles all actions for account information.
+ * @param {string} username
+ * @param {string} password
+ * @param {string} firstName
+ * @param {string} lastName
+ * @param {string} role
  */
-exports.insert = async ({UserCode, UserName }) => {
+exports.registerUser =  async ({ username, password, firstName, lastName, role }) => {
   try {
-    return 'CREATE User';
+    // Checks if all inputs are in request
+    if(!username || !password || !firstName || !lastName || !role){
+      throw new ErrorWithHttpStatus('Missing Properties', 400);
+    }
+    if (await userExists(username)) {
+      throw new ErrorWithHTTPStatus('User already exists.', 400);
+    }
+    const { hash, salt } = await hashPassword(password);
+    await createUser(username, hash, salt, fullName, location);
+    return 'User Succesfully Created'
   } catch (err) {
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
-};
+}
+
+/**
+ * loginUser
+ * @description Handles the logic for logging in users.
+ * @param {string} username
+ * @param {string} password
+ * @returns {string} JWT Token
+ */
+exports.loginUser = async ({ username, password}) => {
+  try {
+    // Checks if all inputs are in request
+    if(!username || !password){
+      throw new ErrorWithHttpStatus('Missing Properties', 400);
+    }
+    if (!(await userExists(username))) {
+      throw new ErrorWithHTTPStatus('User does not exists.', 400);
+    }
+    const { uuid, fullName } = await checkPassword(username, password);
+    const token = await createToken(uuid, fullName);
+    await storeToken(uuid, token);
+    return token;
+  } catch (err) {
+    if (err instanceof ErrorWithHttpStatus) throw err;
+    else throw new ErrorWithHttpStatus('Database Error', 500);
+  } 
+}
 
 /* Read */
 /**
