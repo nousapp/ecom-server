@@ -41,7 +41,6 @@ exports.registerUser =  async ({ username, password, firstName, lastName, role }
     await createUser(username, hash, salt, firstName, lastName, role);
     return 'User Succesfully Created'
   } catch (err) {
-    console.log(err);
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
@@ -68,7 +67,6 @@ exports.loginUser = async ({ username, password}) => {
     await storeToken(uuid, token);
     return token;
   } catch (err) {
-    console.log(err);
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   } 
@@ -142,6 +140,15 @@ exports.update = async (id, newData) => {
     params.push(`_updatedAt = @updateTime`);
     // Handle inputs from body
     for(var i = 1; i <= keys.length ; i++) {
+      // Handle Password coming in
+      if (keys[i-1] == 'password') {
+        console.log('HASH BROWNS');
+        const { hash, salt } = await hashPassword(values[i-1]);
+        params.push('password = @hash');
+        params.push('salt = @salt');
+        reqPool.input('hash', db.NVarChar(100), hash)
+        reqPool.input('salt', db.NVarChar(100), salt)
+      }
       params.push(keys[i-1] + ` = @` + (i));
       reqPool.input(i, values[i-1]);
     }
@@ -160,6 +167,7 @@ exports.update = async (id, newData) => {
     db.close();
     return result.recordset;
   } catch(err) {
+    db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
@@ -190,6 +198,7 @@ exports.delete = async id => {
     db.close(); 
     return result.recordset[0];
   } catch (err) {
+    db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
