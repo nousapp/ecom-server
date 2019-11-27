@@ -30,7 +30,6 @@ const router = express.Router();
 /* Care Server Routes*/
 // Default routes
 router.get('/', (req, res, next) => {
-  console.log(`We're in the router`);
   res.send('Welcome to Care Solutions Server');
   next();
 });
