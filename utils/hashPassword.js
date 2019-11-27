@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const ErrorWithHttpStatus = require('../utils/ErrorWithHttpStatus');
 /**
  * SALT_ROUNDS
  * @description Used to determine how many times should salt be generated. Note: Time grows expoentially the higher it is. 10 is recommended according to auth0.com/blog/hashing-in-action-understanding-bcrypt/ under "Best Practices"
@@ -24,7 +25,10 @@ async function hashPassword(password) {
     const hash = await bcrypt.hash(password, salt);
     return { salt, hash };
   } catch (err) {
-    throw new Error('Failed to generate hash / salt.');
+    const ErrorWithHttpStatus = require('../utils/ErrorWithHttpStatus');
+    // throw new Error('Failed to generate hash / salt.');
+    if (err instanceof ErrorWithHttpStatus) throw err;
+    else throw new ErrorWithHttpStatus('Hask Error', 500);
   }
 }
 module.exports = hashPassword;

@@ -1,4 +1,5 @@
 require('dotenv').config();
+const shortid = require('shortid');
 const format = require('pg-format');
 const db = require('mssql');
 // Helpers for Authentication
@@ -24,7 +25,7 @@ async function userExists(username) {
     // Pass in Query
     let result = await reqPool.query(formattedSelect);
     db.close();
-    return result !== null;
+    return result.recordset.length !== 0;
   } catch (err) {
     throw err;
   }
@@ -53,7 +54,7 @@ async function createUser(Username, Password, Salt, FirstName, LastName, Role) {
     let dateInput =  Object.values(dateRequest.recordset[0])[0];
     let SortName = `${LastName}, ${FirstName}`;
 
-    // Create Transaction
+    // Create Transaction 
     await pool.request()
       .input('id', db.NVarChar(100), idInput)
       .input('createTime', dateInput)

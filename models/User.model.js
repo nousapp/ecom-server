@@ -5,11 +5,11 @@ const db = require('mssql');
 // Auth Helpers
 const { userExists, createUser, storeToken } = require('../db/auth');
 // UTILS
-const hashPassword = require('../utils/hashPasswords');
+const hashPassword = require('../utils/hashPassword');
 const checkPassword = require('../utils/checkPassword');
 const createToken = require('../utils/generateToken');
 const ErrorWithHttpStatus = require('../utils/ErrorWithHttpStatus');
-
+ 
 
 /**
  * @typedef {Object} User
@@ -35,12 +35,13 @@ exports.registerUser =  async ({ username, password, firstName, lastName, role }
       throw new ErrorWithHttpStatus('Missing Properties', 400);
     }
     if (await userExists(username)) {
-      throw new ErrorWithHTTPStatus('User already exists.', 400);
+      throw new ErrorWithHttpStatus('User already exists.', 400);
     }
     const { hash, salt } = await hashPassword(password);
-    await createUser(username, hash, salt, fullName, location);
+    await createUser(username, hash, salt, firstName, lastName, role);
     return 'User Succesfully Created'
   } catch (err) {
+    console.log(err);
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   }
@@ -60,7 +61,7 @@ exports.loginUser = async ({ username, password}) => {
       throw new ErrorWithHttpStatus('Missing Properties', 400);
     }
     if (!(await userExists(username))) {
-      throw new ErrorWithHTTPStatus('User does not exists.', 400);
+      throw new ErrorWithHttpStatus('User does not exists.', 400);
     }
     const { uuid, fullName } = await checkPassword(username, password);
     const token = await createToken(uuid, fullName);
