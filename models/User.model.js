@@ -120,6 +120,23 @@ exports.select = async ( query = {} ) => {
  */
 exports.update = async (id, newData) => {
   try {
+    var keys = Object.keys(newData);
+    var values = Object.values(newData);
+    // Handle Data coming in
+    if (keys.length == 0) {
+      throw new ErrorWithHttpStatus('Data Required to Update', 400);
+    }
+
+    for(var i = 1; i <= keys.length ; i++) {
+      //Handles incoming username and checks if it already exists
+      //WARNING: This must be before you open the pool because userExists has a db.close inside of it.
+      if (keys[i-1] == 'username') { 
+        if (await userExists(values[i-1])) {
+          throw new ErrorWithHttpStatus('User already exists.', 400);
+        }
+      } 
+    }
+
     const pool = await db.connect(`${process.env.DATABASE_URL}`);
     // Get Time
     let dateRequest = await pool.request().query('SELECT getdate();'); 
@@ -128,12 +145,6 @@ exports.update = async (id, newData) => {
 
     // Update Data
     let reqPool = await pool.request() 
-    var keys = Object.keys(newData);
-    var values = Object.values(newData);
-    // Handle Data coming in
-    if (keys.length == 0) {
-      throw new ErrorWithHttpStatus('Data Required to Update', 400);
-    }
     var params = [];
     // Handle Update Time Input
     reqPool.input('updateTime', dateInput);
@@ -142,17 +153,12 @@ exports.update = async (id, newData) => {
     for(var i = 1; i <= keys.length ; i++) {
       // Handle Password coming in
       if (keys[i-1] == 'password') {
-        console.log('HASH BROWNS');
         const { hash, salt } = await hashPassword(values[i-1]);
         params.push('password = @hash');
         params.push('salt = @salt');
         reqPool.input('hash', db.NVarChar(100), hash)
         reqPool.input('salt', db.NVarChar(100), salt)
       } else if (keys[i-1] == 'username') {  //Handles incoming username
-        console.log('Checking username');
-        if (await userExists(values[i-1])) {
-          throw new ErrorWithHttpStatus('User already exists.', 400);
-        }
         params.push('username = @username');
         reqPool.input('username', db.NVarChar(100), values[i-1])
       } else {

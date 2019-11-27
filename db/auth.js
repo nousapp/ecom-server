@@ -27,6 +27,7 @@ async function userExists(username) {
     db.close();
     return result.recordset.length !== 0;
   } catch (err) {
+    
     throw err;
   }
 }
