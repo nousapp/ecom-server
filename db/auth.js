@@ -99,7 +99,7 @@ async function storeToken(id, Token) {
     reqPool.input('updateTime', dateInput);
     reqPool.input('token', Token);
     reqPool.input('id', db.NVarChar(100), id);
-    var queryText = `UPDATE dbo.transactions SET _updatedAt = @updateTime, token = @Token WHERE _id = @id;`;
+    var queryText = `UPDATE dbo.users SET _updatedAt = @updateTime, token = @Token WHERE _id = @id;`;
     
     await reqPool.query(queryText);
 
@@ -136,7 +136,7 @@ async function getUserPrivate(username) {
     // Pass in Query
     let result = await reqPool.query(formattedSelect);
     db.close();
-    return result.recordset;
+    return result.recordset[0];
   } catch (err) {
     db.close();
     if (err instanceof ErrorWithHttpStatus) throw err;

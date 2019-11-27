@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); 
 /**
  * createToken
  * @description Generates a token for each user when they log in.

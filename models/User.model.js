@@ -68,6 +68,7 @@ exports.loginUser = async ({ username, password}) => {
     await storeToken(uuid, token);
     return token;
   } catch (err) {
+    console.log(err);
     if (err instanceof ErrorWithHttpStatus) throw err;
     else throw new ErrorWithHttpStatus('Database Error', 500);
   } 
