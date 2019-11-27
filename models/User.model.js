@@ -148,9 +148,17 @@ exports.update = async (id, newData) => {
         params.push('salt = @salt');
         reqPool.input('hash', db.NVarChar(100), hash)
         reqPool.input('salt', db.NVarChar(100), salt)
+      } else if (keys[i-1] == 'username') {  //Handles incoming username
+        console.log('Checking username');
+        if (await userExists(values[i-1])) {
+          throw new ErrorWithHttpStatus('User already exists.', 400);
+        }
+        params.push('username = @username');
+        reqPool.input('username', db.NVarChar(100), values[i-1])
+      } else {
+        params.push(keys[i-1] + ` = @` + (i));
+        reqPool.input(i, values[i-1]);
       }
-      params.push(keys[i-1] + ` = @` + (i));
-      reqPool.input(i, values[i-1]);
     }
     // Handle ID input
     reqPool.input('id', db.NVarChar(100), id);
@@ -162,7 +170,7 @@ exports.update = async (id, newData) => {
     // Get updated Transaction
     let result = await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query( `SELECT * FROM dbo.users WHERE _id = @id`);
+      .query( `SELECT _id, username, LastName, FirstName, MiddleName, SortName, Role, _updatedAt FROM dbo.users WHERE _id = @id`);
 
     db.close();
     return result.recordset;
