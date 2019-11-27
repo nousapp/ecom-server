@@ -201,7 +201,7 @@ exports.delete = async id => {
     // Get created Transaction
     let result = await pool.request()
       .input('id', db.NVarChar(100), id)
-      .query( `SELECT * FROM dbo.users WHERE _id = @id`);
+      .query( `SELECT  _id, username, LastName, FirstName, MiddleName, SortName, Role, _updatedAt FROM dbo.users WHERE _id = @id`);
     
     if (result.recordset.length == 0) {
       throw new ErrorWithHttpStatus('ID Does not exist', 400);
