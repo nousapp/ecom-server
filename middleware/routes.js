@@ -18,7 +18,8 @@ const {
   getServices,
 } = require('../controllers/Service.controller');
 const {
-  createUser,
+  registerUser,
+  loginUser,
   updateUser,
   deleteUserById,
   getUsers,
@@ -29,7 +30,6 @@ const router = express.Router();
 /* Care Server Routes*/
 // Default routes
 router.get('/', (req, res, next) => {
-  console.log(`We're in the router`);
   res.send('Welcome to Care Solutions Server');
   next();
 });
@@ -53,7 +53,8 @@ router.patch('/api/services/:id', updateService);
 router.delete('/api/services/:id', deleteServiceById);
 
 // GET /api/users
-router.post('/api/users', createUser);
+router.post('/api/users', registerUser);
+router.post('/api/users/login', loginUser);
 router.get('/api/users', getUsers);
 router.patch('/api/users/:id', updateUser);
 router.delete('/api/users/:id', deleteUserById);

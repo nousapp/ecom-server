@@ -1,9 +1,19 @@
 const User = require('../models/User.model');
 
-// Create
-exports.createUser = async (req, res, next) => {
+// Register
+exports.registerUser = async (req, res, next) => {
   try {
-    const newUser = await User.insert(req.body);
+    const newUser = await User.registerUser(req.body);
+    res.status(201).send(newUser);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Login
+exports.loginUser = async (req, res, next) => {
+  try {
+    const newUser = await User.loginUser(req.body);
     res.status(201).send(newUser);
   } catch (err) {
     next(err);
