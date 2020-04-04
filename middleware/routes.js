@@ -6,18 +6,6 @@ const {
   getResidents,
 } = require('../controllers/Resident.controller');
 const {
-  createTransaction,
-  updateTransaction,
-  deleteTransactionById,
-  getTransactions,
-} = require('../controllers/Transaction.controller');
-const {
-  createService,
-  updateService,
-  deleteServiceById,
-  getServices,
-} = require('../controllers/Service.controller');
-const {
   registerUser,
   loginUser,
   updateUser,
@@ -39,18 +27,6 @@ router.post('/api/residents', createResident);
 router.get('/api/residents', getResidents);
 router.patch('/api/residents/:id', updateResident);
 router.delete('/api/residents/:id', deleteResidentById);
-
-// GET /api/transactions
-router.post('/api/transactions', createTransaction);
-router.get('/api/transactions', getTransactions);
-router.patch('/api/transactions/:id', updateTransaction);
-router.delete('/api/transactions/:id', deleteTransactionById);
-
-// GET /api/services
-router.post('/api/services', createService);
-router.get('/api/services', getServices);
-router.patch('/api/services/:id', updateService);
-router.delete('/api/services/:id', deleteServiceById);
 
 // GET /api/users
 router.post('/api/users', registerUser);

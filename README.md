@@ -1,6 +1,6 @@
-# Care Solutions Backend
+# E-Commerce Backend
 
-Backend for Care Solutions app.
+Backend for E-Commerce app.
 Built with MVC architecture and a file-based DB.
 
 ## Setup
